@@ -1,10 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Clothing Store{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/responsive.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-$END$
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="/">
+                        <i class="fas fa-tshirt"></i>
+                        <span>Clothing Store</span>
+                    </a>
+                </div>
+
+                <nav class="nav">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/products" class="nav-link">Товары</a>
+                    <a href="/cart" class="nav-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        Корзина <span id="cart-count" class="cart-count">0</span>
+                    </a>
+                    <div class="auth-links">
+                        <a href="/login" class="nav-link">Вход</a>
+                        <a href="/register" class="nav-link">Регистрация</a>
+                    </div>
+                </nav>
+
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Clothing Store</h3>
+                    <p>Лучший выбор одежды для любого случая</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <p>Email: info@clothingstore.ru</p>
+                    <p>Телефон: +7 (999) 123-45-67</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Мы в соцсетях</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-vk"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Clothing Store. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/products.js"></script>
+    <script src="/static/js/cart.js"></script>
+    <script src="/static/js/auth.js"></script>
+    {% block scripts %}{% endblock %}
+
+    <!-- Кнопка для отладки -->
+    <div style="position: fixed; bottom: 10px; right: 10px; z-index: 1000;">
+        <button onclick="debugCart()" class="btn btn-outline" style="font-size: 12px; padding: 5px 10px;">
+            Debug Cart
+        </button>
+    </div>
 </body>
 </html>

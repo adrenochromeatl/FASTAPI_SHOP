@@ -1,10 +1,124 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Главная - Clothing Store{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Добро пожаловать в Clothing Store</h1>
+            <p>Откройте для себя мир моды и стиля. Мы предлагаем качественную одежду для любого случая.</p>
+            <a href="/products" class="btn btn-primary">Начать покупки</a>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <h2>Почему выбирают нас</h2>
+        <div class="features-grid">
+            <div class="feature">
+                <i class="fas fa-truck"></i>
+                <h3>Быстрая доставка</h3>
+                <p>Доставка по всей России за 2-5 дней</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Гарантия качества</h3>
+                <p>Все товары проходят строгий контроль качества</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-undo"></i>
+                <h3>Легкий возврат</h3>
+                <p>Возврат в течение 14 дней без вопросов</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="categories">
+    <div class="container">
+        <h2>Популярные категории</h2>
+        <div class="categories-grid">
+            <div class="category-card">
+                <img src="/static/images/placeholder.jpg" alt="Футболки">
+                <h3>Футболки</h3>
+                <a href="/products?category=Футболки" class="btn btn-outline">Смотреть</a>
+            </div>
+            <div class="category-card">
+                <img src="/static/images/placeholder.jpg" alt="Джинсы">
+                <h3>Джинсы</h3>
+                <a href="/products?category=Джинсы" class="btn btn-outline">Смотреть</a>
+            </div>
+            <div class="category-card">
+                <img src="/static/images/placeholder.jpg" alt="Куртки">
+                <h3>Куртки</h3>
+                <a href="/products?category=Куртки" class="btn btn-outline">Смотреть</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="featured-products">
+    <div class="container">
+        <h2>Популярные товары</h2>
+        <div id="featured-products" class="products-grid">
+            <div class="loading">Загрузка товаров...</div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Страница загружена, проверяем функции...');
+        console.log('addToCart defined:', typeof addToCart);
+        console.log('debugCart defined:', typeof debugCart);
+
+        // Загрузка популярных товаров
+        loadFeaturedProducts();
+
+        // Обновление счетчика корзины
+        updateCartCount();
+    });
+
+    function loadFeaturedProducts() {
+        fetch('/api/products?limit=4')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки товаров');
+                }
+                return response.json();
+            })
+            .then(products => {
+                const container = document.getElementById('featured-products');
+                if (products.length === 0) {
+                    container.innerHTML = '<p class="no-products">Товары не найдены</p>';
+                    return;
+                }
+
+                container.innerHTML = products.map(product => `
+                    <div class="product-card">
+                        <img src="/static/images/placeholder.jpg" alt="${product.name}">
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                            <p class="category">${product.category}</p>
+                            <p class="price">${product.price} руб.</p>
+                            <p class="stock">В наличии: ${product.stock_quantity} шт.</p>
+                            <button onclick="addToCart(${product.id})" class="btn btn-primary">
+                                В корзину
+                            </button>
+                            <a href="/products/${product.id}" class="btn btn-outline">Подробнее</a>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки товаров:', error);
+                document.getElementById('featured-products').innerHTML =
+                    '<p class="error">Ошибка загрузки товаров. Попробуйте обновить страницу.</p>';
+            });
+    }
+</script>
+{% endblock %}

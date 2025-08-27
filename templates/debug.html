@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Cart</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Отладка корзины</h1>
+
+    <div class="debug-section">
+        <h2>Текущая корзина:</h2>
+        <pre id="cart-content">Загрузка...</pre>
+        <button onclick="loadCartDebug()">Обновить</button>
+        <button onclick="clearCart()">Очистить корзину</button>
+    </div>
+
+    <div class="debug-section">
+        <h2>Добавить тестовый товар:</h2>
+        <button onclick="addTestProduct(1)">Добавить товар ID 1</button>
+        <button onclick="addTestProduct(2)">Добавить товар ID 2</button>
+    </div>
+
+    <div class="debug-section">
+        <h2>Проверка API:</h2>
+        <button onclick="testAPI()">Проверить API товаров</button>
+        <pre id="api-result"></pre>
+    </div>
+
+    <script>
+        function loadCartDebug() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            document.getElementById('cart-content').textContent = JSON.stringify(cart, null, 2);
+        }
+
+        function clearCart() {
+            localStorage.removeItem('cart');
+            loadCartDebug();
+            alert('Корзина очищена');
+        }
+
+        function addTestProduct(productId) {
+            // Эмулируем добавление товара
+            fetch(`/api/products/${productId}`)
+                .then(response => response.json())
+                .then(product => {
+                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    const existing = cart.find(item => item.id === product.id);
+
+                    if (existing) {
+                        existing.quantity++;
+                    } else {
+                        cart.push({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            quantity: 1,
+                            image: '/static/images/placeholder.jpg'
+                        });
+                    }
+
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    loadCartDebug();
+                    alert(`Добавлен товар: ${product.name}`);
+                })
+                .catch(error => {
+                    alert('Ошибка: ' + error.message);
+                });
+        }
+
+        function testAPI() {
+            fetch('/api/products')
+                .then(response => response.json())
+                .then(products => {
+                    document.getElementById('api-result').textContent =
+                        `Найдено товаров: ${products.length}\n\n` +
+                        JSON.stringify(products.slice(0, 3), null, 2);
+                })
+                .catch(error => {
+                    document.getElementById('api-result').textContent = 'Ошибка: ' + error.message;
+                });
+        }
+
+        // Загрузить данные при старте
+        loadCartDebug();
+    </script>
+</body>
+</html>

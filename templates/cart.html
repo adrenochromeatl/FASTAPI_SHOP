@@ -1,10 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Корзина - Clothing Store{% endblock %}
+
+{% block content %}
+<section class="cart">
+    <div class="container">
+        <h1>Корзина покупок</h1>
+        
+        <div id="cart-container">
+            <div class="cart-empty" id="cart-empty">
+                <i class="fas fa-shopping-cart"></i>
+                <h2>Ваша корзина пуста</h2>
+                <p>Добавьте товары из каталога</p>
+                <a href="/products" class="btn btn-primary">Перейти к покупкам</a>
+            </div>
+            
+            <div class="cart-content" id="cart-content" style="display: none;">
+                <div class="cart-items" id="cart-items">
+                    <!-- Товары в корзине -->
+                </div>
+                
+                <div class="cart-summary">
+                    <h3>Итого</h3>
+                    <div class="summary-item">
+                        <span>Товары:</span>
+                        <span id="total-items">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Общая сумма:</span>
+                        <span id="total-amount">0 руб.</span>
+                    </div>
+                    <button onclick="createOrder()" class="btn btn-primary btn-large">
+                        Оформить заказ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/cart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCart();
+        updateCartCount();
+    });
+</script>
+{% endblock %}

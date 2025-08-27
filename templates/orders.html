@@ -1,10 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Заказы - Clothing Store{% endblock %}
+
+{% block content %}
+<section class="orders">
+    <div class="container">
+        <h1>Мои заказы</h1>
+        
+        <div id="orders-container">
+            <div class="orders-empty" id="orders-empty">
+                <i class="fas fa-box-open"></i>
+                <h2>У вас пока нет заказов</h2>
+                <p>Сделайте свой первый заказ!</p>
+                <a href="/products" class="btn btn-primary">Перейти к покупкам</a>
+            </div>
+            
+            <div class="orders-list" id="orders-list" style="display: none;">
+                <!-- Список заказов -->
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadOrders();
+        updateCartCount();
+    });
+    
+    function loadOrders() {
+        fetch('/api/orders?user_id=1') // В учебных целях используем фиксированный user_id
+            .then(response => response.json())
+            .then(orders => {
+                if (orders.length === 0) {
+                    document.getElementById('orders-empty').style.display = 'block';
+                    document.getElementById('orders-list').style.display = 'none';
+                } else {
+                    document.getElementById('orders-empty').style.display = 'none';
+                    document.getElementById('orders-list').style.display = 'block';
+                    
+                    const ordersList = document.getElementById('orders-list');
+                    ordersList.innerHTML = orders.map(order => `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <h3>Заказ #${order.id}</h3>
+                                <span class="order-status ${order.status}">${order.status}</span>
+                            </div>
+                            <div class="order-details">
+                                <p><strong>Дата:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
+                                <p><strong>Сумма:</strong> ${order.total_amount} руб.</p>
+                                <p><strong>Товаров:</strong> ${order.products.length}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки заказов:', error);
+                document.getElementById('orders-empty').style.display = 'block';
+                document.getElementById('orders-empty').innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h2>Ошибка загрузки заказов</h2>
+                    <p>Попробуйте позже</p>
+                `;
+            });
+    }
+</script>
+{% endblock %}

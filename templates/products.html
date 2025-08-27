@@ -1,10 +1,122 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Товары - Clothing Store{% endblock %}
+
+{% block content %}
+<section class="products-page">
+    <div class="container">
+        <div class="page-header">
+            <h1>Каталог товаров</h1>
+            <div class="filters">
+                <select id="category-filter" onchange="filterProducts()">
+                    <option value="">Все категории</option>
+                    <option value="Футболки">Футболки</option>
+                    <option value="Джинсы">Джинсы</option>
+                    <option value="Куртки">Куртки</option>
+                    <option value="Платья">Платья</option>
+                    <option value="Рубашки">Рубашки</option>
+                    <option value="Свитеры">Свитеры</option>
+                </select>
+                <select id="sort-filter" onchange="filterProducts()">
+                    <option value="name">По названию</option>
+                    <option value="price">По цене (возрастание)</option>
+                    <option value="price_desc">По цене (убывание)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="products-container" class="products-grid">
+            <div class="loading">Загрузка товаров...</div>
+        </div>
+
+        <div class="pagination">
+            <button id="prev-page" class="btn btn-outline" onclick="changePage(-1)">Назад</button>
+            <span id="page-info">Страница 1</span>
+            <button id="next-page" class="btn btn-outline" onclick="changePage(1)">Вперед</button>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentPage = 1;
+    const limit = 8;
+    let currentCategory = '';
+    let currentSort = 'name';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadProducts();
+        updateCartCount();
+    });
+
+    function loadProducts() {
+        let url = `/api/products?skip=${(currentPage - 1) * limit}&limit=${limit}`;
+        if (currentCategory) {
+            url += `&category=${encodeURIComponent(currentCategory)}`;
+        }
+        if (currentSort) {
+            url += `&sort=${currentSort}`;
+        }
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки товаров');
+                }
+                return response.json();
+            })
+            .then(products => {
+                displayProducts(products);
+                updatePagination();
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки товаров:', error);
+                document.getElementById('products-container').innerHTML =
+                    '<p class="error">Ошибка загрузки товаров. Попробуйте обновить страницу.</p>';
+            });
+    }
+    
+    function displayProducts(products) {
+        const container = document.getElementById('products-container');
+        if (products.length === 0) {
+            container.innerHTML = '<p class="no-products">Товары не найдены</p>';
+            return;
+        }
+        
+        container.innerHTML = products.map(product => `
+            <div class="product-card">
+                <img src="/static/images/placeholder.jpg" alt="${product.name}">
+                <div class="product-info">
+                    <h3>${product.name}</h3>
+                    <p class="category">${product.category}</p>
+                    <p class="price">${product.price} руб.</p>
+                    <p class="stock">В наличии: ${product.stock_quantity} шт.</p>
+                    <button onclick="addToCart(${product.id})" class="btn btn-primary">
+                        В корзину
+                    </button>
+                    <a href="/products/${product.id}" class="btn btn-outline">Подробнее</a>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function filterProducts() {
+        currentCategory = document.getElementById('category-filter').value;
+        currentSort = document.getElementById('sort-filter').value;
+        currentPage = 1;
+        loadProducts();
+    }
+    
+    function changePage(direction) {
+        currentPage += direction;
+        if (currentPage < 1) currentPage = 1;
+        loadProducts();
+    }
+    
+    function updatePagination() {
+        document.getElementById('page-info').textContent = `Страница ${currentPage}`;
+        document.getElementById('prev-page').disabled = currentPage === 1;
+    }
+</script>
+{% endblock %}

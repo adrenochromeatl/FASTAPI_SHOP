@@ -1,10 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Товар - Clothing Store{% endblock %}
+
+{% block content %}
+<section class="product-detail">
+    <div class="container">
+        <div id="product-detail-container">
+            <!-- Информация о товаре будет загружена через JavaScript -->
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productId = window.location.pathname.split('/').pop();
+        loadProductDetail(productId);
+        updateCartCount();
+    });
+    
+    function loadProductDetail(productId) {
+        fetch(`/api/products/${productId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Товар не найден');
+                }
+                return response.json();
+            })
+            .then(product => {
+                displayProductDetail(product);
+            })
+            .catch(error => {
+                document.getElementById('product-detail-container').innerHTML = `
+                    <div class="error">
+                        <h2>Товар не найден</h2>
+                        <p>${error.message}</p>
+                        <a href="/products" class="btn btn-primary">Вернуться к каталогу</a>
+                    </div>
+                `;
+            });
+    }
+    
+    function displayProductDetail(product) {
+        const container = document.getElementById('product-detail-container');
+        container.innerHTML = `
+            <div class="product-detail-content">
+                <div class="product-image">
+                    <img src="/static/images/placeholder.jpg" alt="${product.name}">
+                </div>
+                <div class="product-info">
+                    <h1>${product.name}</h1>
+                    <p class="category">Категория: ${product.category}</p>
+                    <p class="price">${product.price} руб.</p>
+                    <p class="description">${product.description}</p>
+                    <div class="details">
+                        <p><strong>Размер:</strong> ${product.size}</p>
+                        <p><strong>Цвет:</strong> ${product.color}</p>
+                        <p><strong>В наличии:</strong> ${product.stock_quantity} шт.</p>
+                    </div>
+                    <div class="actions">
+                        <button onclick="addToCart(${product.id})" class="btn btn-primary btn-large">
+                            Добавить в корзину
+                        </button>
+                        <a href="/products" class="btn btn-outline">Назад к каталогу</a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+</script>
+{% endblock %}
